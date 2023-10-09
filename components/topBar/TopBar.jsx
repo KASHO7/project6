@@ -1,28 +1,32 @@
-import React from 'react';
-import {
-  AppBar, Toolbar, Typography
-} from '@mui/material';
-import './TopBar.css';
+import React from "react";
+import { AppBar, Toolbar, Typography } from "@mui/material";
+import { useLocation } from "react-router-dom";
 
-/**
- * Define TopBar, a React componment of project #5
- */
-class TopBar extends React.Component {
-  constructor(props) {
-    super(props);
-  }
+function TopBar() {
+    const { pathname } = useLocation();
 
-  render() {
+    const getTitle = () => {
+        switch (pathname) {
+            case "/users":
+                return "All Users";
+            case `/users/:userId`:
+                return "User Details";
+            case `/photos/:userId`:
+                return "Photos of User";
+            default:
+                return "Photo App";
+        }
+    };
+
     return (
-      <AppBar className="topbar-appBar" position="absolute">
-        <Toolbar>
-          <Typography variant="h5" color="inherit">
-              This is the TopBar component
-          </Typography>
-        </Toolbar>
-      </AppBar>
+        <AppBar className="topbar-appBar" position="absolute">
+            <Toolbar>
+                <Typography variant="h5" color="inherit">
+                    {getTitle()}
+                </Typography>
+            </Toolbar>
+        </AppBar>
     );
-  }
 }
 
 export default TopBar;

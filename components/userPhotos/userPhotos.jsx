@@ -1,34 +1,26 @@
-import React from 'react';
-import {
-  Typography
-} from '@mui/material';
-import './userPhotos.css';
+import React from "react";
+import { Grid, Card, CardContent } from "@mui/material";
+import { useParams } from "react-router-dom";
 
+function UserPhotos() {
+  const { userId } = useParams();
+  const photos = window.models.photoOfUserModel(userId);
 
-/**
- * Define UserPhotos, a React componment of project #5
- */
-class UserPhotos extends React.Component {
-  constructor(props) {
-    super(props);
-
-  }
-
-  render() {
-    return (
-      <Typography variant="body1">
-      This should be the UserPhotos view of the PhotoShare app. Since
-      it is invoked from React Router the params from the route will be
-      in property match. So this should show details of user:
-      {this.props.match.params.userId}. You can fetch the model for the user from
-      window.models.photoOfUserModel(userId):
-        <Typography variant="caption">
-          {JSON.stringify(window.models.photoOfUserModel(this.props.match.params.userId))}
-        </Typography>
-      </Typography>
-
-    );
-  }
+  return (
+      <Grid container spacing={2}>
+        {photos.map((photo) => (
+            <Grid item key={photo.id} xs={12} md={6}>
+              <Card>
+                <CardContent>
+                  <img src={photo.file_name} alt={photo.id} />
+                  <h4>{photo.date_time}</h4>
+                  <p>{photo.description}</p>
+                </CardContent>
+              </Card>
+            </Grid>
+        ))}
+      </Grid>
+  );
 }
 
 export default UserPhotos;
