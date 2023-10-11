@@ -1,13 +1,7 @@
-import React from 'react';
-import {
-  Divider,
-  List,
-  ListItem,
-  ListItemText,
-}
-from '@material-ui/core';
+import React from "react";
+import { Divider, List, ListItem, ListItemText } from "@material-ui/core";
 import { Link } from "react-router-dom";
-import './userList.css';
+import "./userList.css";
 import fetchModel from "../../lib/fetchModelData";
 
 /**
@@ -20,11 +14,14 @@ class UserList extends React.Component {
       users: undefined,
     };
     let newpromise = fetchModel("http://localhost:3000/user/list");
-    newpromise.then((response) => {
-      console.log(response); // Log the response data
-      this.setState({ users: response.data });
-    });
-
+    newpromise
+      .then((response) => {
+        console.log("User List Response:", response); // Log the response data
+        this.setState({ users: response.data });
+      })
+      .catch((error) => {
+        console.error("Error fetching user data:", error);
+      });
   }
 
   render() {
@@ -35,7 +32,9 @@ class UserList extends React.Component {
             return (
               <Link to={`/users/${user._id}`} key={user._id}>
                 <ListItem>
-                  <ListItemText primary={`${user.first_name} ${user.last_name}`} />
+                  <ListItemText
+                    primary={`${user.first_name} ${user.last_name}`}
+                  />
                 </ListItem>
                 <Divider />
               </Link>
@@ -43,7 +42,9 @@ class UserList extends React.Component {
           })}
         </List>
       </div>
-    ) : <div/>;
+    ) : (
+      <div />
+    );
   }
 }
 
