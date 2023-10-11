@@ -1,15 +1,15 @@
 /*
-CSS for the project #5 main page
+CSS for the CS142 project #5 main page
 
 Since CSS uses a global name space for classes we should use class names starting with
-main- here.
+cs142-main- here.
 */
 
-.main-topbar-buffer {
+.cs142-main-topbar-buffer {
   margin-top: 70px;
 }
 
-.main-grid-item {
+.cs142-main-grid-item {
   height: calc(100vh - 85px);
   padding: 10px;
 }

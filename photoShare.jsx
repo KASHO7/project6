@@ -1,56 +1,68 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { HashRouter as Router, Route, Switch } from 'react-router-dom';
-import { Grid, Paper } from '@mui/material';
+import {
+  HashRouter, Route, Switch
+} from 'react-router-dom';
+import {
+  Grid, Paper
+} from '@material-ui/core';
+import './styles/main.css';
+
+// import necessary components
 import TopBar from './components/topBar/TopBar';
 import UserDetail from './components/userDetail/userDetail';
 import UserList from './components/userList/userList';
 import UserPhotos from './components/userPhotos/userPhotos';
 
 class PhotoShare extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            // TODO: Add state variables for logged-in user and current page
-        };
-    }
+  constructor(props) {
+    super(props);
+    this.state = {
+      view: "Welcome to the photosharing app!"
+    };
+    // this.changeView = this.changeView.bind(this);
+  }
 
-    // TODO: Add handlers for login, logout, and navigation
+  changeView = (newView) => {
+    this.setState({ view: newView});
+  };
 
-    render() {
-        return (
-            <Router>
-                <div>
-                    <Grid container spacing={2}>
-                        <Grid item xs={12}>
-                            <TopBar />
-                        </Grid>
-                        <Grid item sm={3}>
-                            <Paper className="main-sidebar">
-                                {/* Sidebar content goes here */}
-                            </Paper>
-                        </Grid>
-                        <Grid item sm={9}>
-                            <Paper className="main-content">
-                                <Switch>
-                                    <Route path="/users/:userId" component={UserDetail} />
-                                    <Route path="/photos/:userId" component={UserPhotos} />
-                                    <Route path="/" component={UserList} />
-                                </Switch>
-                            </Paper>
-                        </Grid>
-                    </Grid>
-                </div>
-            </Router>
-        );
-    }
+  render() {
+    return (
+      <HashRouter>
+      <div>
+      <Grid container spacing={8}>
+        <Grid item xs={12}>
+          <TopBar view={this.state.view}/>
+        </Grid>
+        <div className="cs142-main-topbar-buffer"/>
+        <Grid item sm={3}>
+          <Paper className="cs142-main-grid-item">
+            <UserList />
+          </Paper>
+        </Grid>
+        <Grid item sm={9}>
+          <Paper className="cs142-main-grid-item">
+            <Switch>
+              <Route path="/users/:userId"
+                render={ props => <UserDetail {...props} changeView={this.changeView} /> }
+              />
+              <Route path="/photos/:userId"
+                render ={ props => <UserPhotos {...props} changeView={this.changeView} /> }
+              />
+              <Route path="/users" component={UserList}  />
+            </Switch>
+          </Paper>
+        </Grid>
+      </Grid>
+      </div>
+      </HashRouter>
+    );
+  }
 }
 
-// Check if the element with the ID `#photoshareapp` exists in the DOM.
-// If it does not exist, create it.
-const photoShareAppElement = document.getElementById('photoshareapp') || document.createElement('div');
-photoShareAppElement.id = 'photoshareapp';
-document.body.appendChild(photoShareAppElement);
 
-// Render the PhotoShare component into the `#photoshareapp` element.
-ReactDOM.render(<PhotoShare />, photoShareAppElement);
+ReactDOM.render(
+  <PhotoShare />,
+  document.getElementById('photoshareapp'),
+);

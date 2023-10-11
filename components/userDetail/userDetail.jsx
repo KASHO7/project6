@@ -1,32 +1,67 @@
-import React from "react";
+import React from 'react';
 import {
-  Card,
-  CardContent,
-  CardActions,
-  Button,
-  Link,
-} from "@mui/material";
-import { useParams } from "react-router-dom";
+  Grid, Typography
+} from '@material-ui/core';
+import { Link } from "react-router-dom";
+import './userDetail.css';
+import fetchModel from "../../lib/fetchModelData";
 
-function UserDetail() {
-  const { userId } = useParams();
-  const user = window.models.userModel(userId);
+/**
+ * Define UserDetail, a React componment of CS142 project #5
+ */
+class UserDetail extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state={
+      user:undefined
+    };
+    let newUserId = props.match.params.userId;
+    console.log(newUserId);
+    let promise = fetchModel(`http://localhost:3000/user/${newUserId}`);
+    promise.then(response => {
+      let newUser = response.data;
+      this.setState({user:newUser});
+      this.props.changeView(
+        `${newUser.first_name} ${newUser.last_name}`
+      );
+    });
+  }
 
-  return (
-      <Card>
-        <CardContent>
-          <h1>{user.first_name} {user.last_name}</h1>
-          <p>{user.occupation}</p>
-          <p>{user.location}</p>
-          <p>{user.description}</p>
-        </CardContent>
-        <CardActions>
-          <Link to={`/photos/${userId}`}>
-            <Button variant="contained">See Photos</Button>
-          </Link>
-        </CardActions>
-      </Card>
-  );
+  componentDidUpdate() {
+    let newUserId = this.props.match.params.userId;
+    if ((this.state.user && this.state.user._id) !== newUserId) {
+      let promise = fetchModel(`http://localhost:3000/user/${newUserId}`);
+      promise.then(response => {
+        let newUser = response.data;
+        this.setState({user:newUser});
+        this.props.changeView(
+          `${newUser.first_name} ${newUser.last_name}`
+        );
+      });
+    }
+  }
+
+  render() {
+    return this.state.user ? (
+        <Grid container justifyContent="space-between" alignItems="center">
+        <Typography variant="h3" color="inherit">
+          {`${this.state.user.first_name} ${this.state.user.last_name}`}
+        </Typography>
+        <Typography variant="h5">
+          Occupation: {`${this.state.user.occupation}`}
+        </Typography>
+        <Typography variant="h5">
+          Location: {`${this.state.user.location}`}
+        </Typography>
+        <Typography variant="body1">
+          Description: {`${this.state.user.description}`}
+        </Typography>
+        <Typography variant="h3">
+          <Link to={`/photos/${this.state.user._id}`}>Photos</Link>
+        </Typography>
+        </Grid>
+    ) : <div/>;
+  }
 }
 
 export default UserDetail;
