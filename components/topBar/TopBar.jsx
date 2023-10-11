@@ -1,56 +1,50 @@
-import React from 'react';
-import {
-  Grid, AppBar, Toolbar, Typography
-} from '@material-ui/core';
-import './TopBar.css';
+import React from "react";
+import { Grid, AppBar, Toolbar, Typography } from "@material-ui/core";
 import fetchModel from "../../lib/fetchModelData";
 
-/**
- * Define TopBar, a React componment of CS142 project #5
- */
 class TopBar extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      view: this.props.view,
-      version:""
-    };
-    let promise = fetchModel("http://localhost:3000/test/info");
-    promise.then((response) => {this.setState({ version: response.data.__v});});
-  }
-
-  componentDidUpdate(prevProps) {
-    if (prevProps.view !== this.props.view) {
-      this.setState({ view: this.props.view });
+    constructor(props) {
+        super(props);
+        this.state = {
+            view: this.props.view || "",
+            version: ""
+        };
     }
-  };
 
-  render() {
-    return (
-      <AppBar className="cs142-topbar-appBar" position="absolute">
-        <Toolbar>
-          <Grid container justifyContent="space-between" alignItems="center">
+    componentDidUpdate(prevProps) {
+        if (prevProps.view !== this.props.view) {
+            this.setState({ view: this.props.view || "" });
+            let prom = fetchModel("http://localhost:3000/test/info");
+            prom.then(response => {
+                this.setState({ version: response.data.__v });
+            });
+        }
+    }
 
-          <Grid item xs>
-            <Typography variant="h5" color="inherit">
-                Group 9
-            </Typography>
-          </Grid>
-            <Grid item xs>
-            <Typography variant="h5" color="inherit">
-                Version: {this.state.version}
-            </Typography>
-            </Grid>
-            <Grid item xs>
-            <Typography variant="h5" align="right">
-                {this.state.view}
-            </Typography>
-            </Grid>
-          </Grid>
-        </Toolbar>
-      </AppBar>
-    );
-  }
+    render() {
+        const { view } = this.state;
+
+        return (
+            <AppBar className="cs142-topbar-appBar" position="absolute">
+                <Toolbar>
+                    <Grid
+                        container
+                        direction="row"
+                        justifyContent="space-between" // Updated prop here
+                        alignItems="center"
+                    >
+                        <Typography variant="h5" color="inherit">
+                            Your Name
+                        </Typography>
+                        <Typography variant="body1">
+                            version: {this.state.version}
+                        </Typography>
+                        <Typography variant="h5">{view}</Typography>
+                    </Grid>
+                </Toolbar>
+            </AppBar>
+        );
+    }
 }
 
 export default TopBar;

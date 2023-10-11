@@ -44,12 +44,18 @@
  * 
  */
 (function() {
+
+// Enable All CORS Requests
+
+// ... rest of your server code
+
    // Create fake test Schema
    var schemaInfo = {
       load_date_time: "Fri Apr 29 2016 01:45:15 GMT-0700 (PDT)",
       __v: 0,
       _id: "57231f1b30e4351f4e9f4bf6"
    };
+
 
    // Create init users.
 
@@ -226,6 +232,7 @@
       photoOfUserModel: photoOfUserModel,
       schemaInfo: schemaModel
    };
+
 
    if( typeof exports !== 'undefined' ) {
       // We're being loaded by the Node.js module loader ('require') so we use its

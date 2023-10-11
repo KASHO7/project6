@@ -1,51 +1,51 @@
 import React from "react";
-import { Divider, List, ListItem, ListItemText } from "@material-ui/core";
+import { List, ListItem, ListItemText, Divider } from "@material-ui/core";
 import { Link } from "react-router-dom";
-import "./userList.css";
 import fetchModel from "../../lib/fetchModelData";
 
 /**
- * Define UserList, a React componment of CS142 project #5
+ * Define UserList, a React component of the PhotoApp
  */
 class UserList extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      users: undefined,
-    };
-    let newpromise = fetchModel("http://localhost:3000/user/list");
-    newpromise
-      .then((response) => {
-        console.log("User List Response:", response); // Log the response data
-        this.setState({ users: response.data });
-      })
-      .catch((error) => {
-        console.error("Error fetching user data:", error);
-      });
-  }
+    constructor(props) {
+        super(props);
+        this.state = {
+            users: []
+        };
 
-  render() {
-    return this.state.users ? (
-      <div>
-        <List component="nav">
-          {this.state.users.map((user) => {
-            return (
-              <Link to={`/users/${user._id}`} key={user._id}>
-                <ListItem>
-                  <ListItemText
-                    primary={`${user.first_name} ${user.last_name}`}
-                  />
-                </ListItem>
-                <Divider />
-              </Link>
-            );
-          })}
-        </List>
-      </div>
-    ) : (
-      <div />
-    );
-  }
+        this.fetchUserList();
+    }
+
+    fetchUserList() {
+        fetchModel(`http://localhost:3000/user/list`).then(response => {
+            this.setState({ users: response.data });
+        });
+    }
+
+    render() {
+        const { users } = this.state;
+
+        return (
+            <div className="user-list">
+                <List component="nav">
+                    {users.length > 0 ? (
+                        users.map(user => (
+                            <Link to={`/users/${user._id}`} key={user._id} style={{ textDecoration: 'none' }}>
+                                <ListItem button>
+                                    <ListItemText primary={`${user.first_name} ${user.last_name}`} />
+                                </ListItem>
+                                <Divider />
+                            </Link>
+                        ))
+                    ) : (
+                        <ListItem>
+                            <ListItemText primary="No users available" />
+                        </ListItem>
+                    )}
+                </List>
+            </div>
+        );
+    }
 }
 
 export default UserList;
