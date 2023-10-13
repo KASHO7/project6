@@ -50,7 +50,7 @@ class UserPhotos extends React.Component {
                 {user ? (
                     <div>
                         <Typography variant="h3">
-                            {user.first_name} {user.last_name}'s photos
+                            <div>{user.first_name} {user.last_name}&apos;s photos</div>
                         </Typography>
                         <Grid container spacing={3}>
                             {photos.map(photo => (

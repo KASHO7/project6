@@ -25,7 +25,7 @@ class TopBar extends React.Component {
         const { view } = this.state;
 
         return (
-            <AppBar className="cs142-topbar-appBar" position="absolute">
+            <AppBar className="topbar-appBar" position="absolute">
                 <Toolbar>
                     <Grid
                         container
@@ -34,7 +34,7 @@ class TopBar extends React.Component {
                         alignItems="center"
                     >
                         <Typography variant="h5" color="inherit">
-                            Your Name
+                            Group 9
                         </Typography>
                         <Typography variant="body1">
                             version: {this.state.version}
