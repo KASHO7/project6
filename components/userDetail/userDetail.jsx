@@ -1,68 +1,51 @@
 import React from "react";
-import { Typography, Grid, Button } from "@material-ui/core";
-import "./userDetail.css";
+import { List, ListItem, ListItemText, Paper, Typography } from "@material-ui/core";
+import "./userList.css";
 import { Link } from "react-router-dom";
 import fetchModel from "../../lib/fetchModelData";
 
-const DETAILS = "Info about ";
-
-class UserDetail extends React.Component {
+class UserList extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            user: null
+            userList: [],
+            error: null,
         };
-        this.userId = props.match.params.userId;
-        console.log("User ID from URL:", this.userId); // Log the user ID to the console
-
     }
-
 
     async componentDidMount() {
         try {
-            let newUserID = this.props.match.params.userId;
-            let response = await fetchModel(`http://localhost:3000/user/${newUserID}`);
-            let newUser = response.data;
-            this.setState({ user: newUser });
-            this.props.changeView(DETAILS, `${newUser.first_name} ${newUser.last_name}`);
+            let response = await fetchModel("http://localhost:3000/user/list");
+            let userList = response.data;
+            this.setState({ userList });
         } catch (error) {
-            console.error("Error loading user data:", error);
-            // Handle the error, e.g., display an error message or redirect to an error page
-            this.setState({ error: true });
+            console.error("Error loading user list:", error);
+            this.setState({ error });
         }
     }
 
     render() {
-        const { user, error } = this.state;
+        const { userList, error } = this.state;
 
         if (error) {
-            return <div>Error loading user data. Please try again later.</div>; // Display an error message
-        }
-
-        if (!user) {
-            return <div>Loading...</div>; // Display a loading spinner or other loading indicator
+            return <div>Error loading user list. Please try again later.</div>;
         }
 
         return (
-            <Grid container justifyContent="space-evenly" alignItems="center">
-                <Grid item xs={6}>
-                    <Typography variant="h3">
-                        {`${user.first_name} ${user.last_name}`}
-                    </Typography>
-                    <Typography variant="h5">
-                        {user.occupation} <br />
-                        based in {user.location}
-                    </Typography>
-                    <Typography variant="body1">{user.description}</Typography>
-                </Grid>
-                <Grid item xs={4}>
-                    <Button variant="contained" size="large">
-                        <Link to={`/photos/${user._id}`}>See photos</Link>
-                    </Button>
-                </Grid>
-            </Grid>
+            <Paper className="userList">
+                <Typography variant="h6">Users</Typography>
+                <List>
+                    {userList.map((user) => (
+                        <Link to={`/users/${user._id}`} key={user._id} className="userLink">
+                            <ListItem button>
+                                <ListItemText primary={`${user.first_name} ${user.last_name}`} />
+                            </ListItem>
+                        </Link>
+                    ))}
+                </List>
+            </Paper>
         );
     }
 }
 
-export default UserDetail;
+export default UserList;
