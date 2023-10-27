@@ -1,4 +1,3 @@
-/* jshint node: true */
 
 var mongoose = require('mongoose');
 mongoose.Promise = require('bluebird');
@@ -84,65 +83,49 @@ app.get('/user/list', function (request, response) {
   });
 });
 
-app.get('/user/:id', function (request, response) {
-  var id = request.params.id;
 
-  // Check if the provided ID is valid ObjectId
-  if (!mongoose.Types.ObjectId.isValid(id)) {
-    return response.status(400).send('Invalid user ID');
-  }
-
-  User.findOne({ _id: id }, function (err, user) {
+app.get("/user/:id", function (request, response) {
+  const id = request.params.id;
+  User.find({"_id": {$eq: id}},{__v:0}, function (err, user) {
     if (err) {
-      console.error('Error fetching user:', err);
-      return response.status(500).send('Internal Server Error');
+      console.error("Error in /user/:id", err);
+      response.status(500).send(JSON.stringify(err));
+      return;
     }
+    if (user.length === 0) {
 
-    // Check if user exists
-    if (!user) {
-      return response.status(404).send('User not found');
+      response.status(400).send();
+      return;
     }
-
-    // User found, send the response
-    let { _id, first_name, last_name, location, description, occupation } = user;
-    let newUser = { _id, first_name, last_name, location, description, occupation };
-    response.status(200).send(newUser);
+    // We got the object - return it in JSON format.
+    response.end(JSON.stringify(user[0]));
   });
 });
 
 
-app.get('/photosOfUser/:id', function (request, response) {
-  var id = request.params.id;
-  // Original query for fetching user photos
+app.get("/photosOfUser/:id", function (request, response) {
+  const id = request.params.id;
   Photo.aggregate([
-    {
-      "$match": {
-        "user_id": { "$eq": new mongoose.Types.ObjectId(id) }
-      }
+    { "$match":
+          {"user_id": {"$eq": new mongoose.Types.ObjectId(id)}}
     },
-    {
-      "$addFields": {
-        "comments": { "$ifNull": ["$comments", []] }
-      }
-    },
-    {
-      "$lookup": {
+    { "$addFields": {
+        "comments": { "$ifNull" : [ "$comments", [ ] ] }
+      } },
+    { "$lookup": {
         "from": "users",
         "localField": "comments.user_id",
         "foreignField": "_id",
         "as": "users"
-      }
-    },
-    {
-      "$addFields": {
+      } },
+    { "$addFields": {
         "comments": {
           "$map": {
             "input": "$comments",
             "in": {
               "$mergeObjects": [
                 "$$this",
-                {
-                  "user": {
+                { "user": {
                     "$arrayElemAt": [
                       "$users",
                       {
@@ -152,16 +135,13 @@ app.get('/photosOfUser/:id', function (request, response) {
                         ]
                       }
                     ]
-                  }
-                }
+                  } }
               ]
             }
           }
         }
-      }
-    },
-    {
-      "$project": {
+      } },
+    { "$project": {
         "users": 0,
         "__v": 0,
         "comments.__v": 0,
@@ -170,15 +150,19 @@ app.get('/photosOfUser/:id', function (request, response) {
         "comments.user.description": 0,
         "comments.user.occupation": 0,
         "comments.user.__v": 0
-      }
-    }
-  ]).exec((err, photosWithComments) => {
+      } }
+  ], function (err, photos) {
     if (err) {
-      console.error('Error fetching photos with comments:', err);
-      response.status(500).send('Internal Server Error');
-    } else {
-      response.status(200).send(photosWithComments);
+      console.error("Error in /photosOfUser/:id", err);
+      response.status(500).send(JSON.stringify(err));
+      return;
     }
+    if (photos.length === 0) {
+      response.status(400).send();
+      return;
+    }
+    // We got the object - return it in JSON format.
+    response.end(JSON.stringify(photos));
   });
 });
 
