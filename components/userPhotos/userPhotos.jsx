@@ -1,95 +1,108 @@
-import React from "react";
+import React from 'react';
 import {
-    Typography,
-    Grid,
-    Card,
-    CardHeader,
-    CardMedia,
-    CardContent
-} from "@material-ui/core";
+    Grid,Card,  CardContent, CardHeader, CardMedia,CardActionArea, Typography
+} from '@material-ui/core';
 import { Link } from "react-router-dom";
-import fetchModel from "../../lib/fetchModelData";
+import './userPhotos.css';
+//import fetchModel from "../../lib/fetchModelData";
+import axios from 'axios';
 
 /**
- * Define UserPhotos, a React component of the PhotoApp
+ * Define UserPhotos
  */
 class UserPhotos extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            user: null,
-            photos: []
+            user:undefined,
+            photos:undefined
         };
-        this.userId = props.match.params.userId;
-
-        this.fetchUserData();
-        this.fetchUserPhotos();
     }
 
-    fetchUserData() {
-        fetchModel(`http://localhost:3000/user/${this.userId}`).then(response => {
-            this.setState({ user: response.data });
-            this.props.changeView(
-                "Photos of",
-                `${response.data.first_name} ${response.data.last_name}`
-            );
-        });
-    }
+    componentDidMount = () => {
+        let userId = this.props.match.params.userId;
+        axios.get(`http://localhost:3000/photosOfUser/${userId}`)
+            .then(response => {
+                this.setState({photos: response.data});
+            })
+            .catch(err => {console.error(err);});
 
-    fetchUserPhotos() {
-        fetchModel(`http://localhost:3000/photosOfUser/${this.userId}`).then(response => {
-            this.setState({ photos: response.data });
-        });
-    }
+        axios.get(`http://localhost:3000/user/${userId}`)
+            .then(response => {
+                this.setState({user: response.data});
+                this.props.changeView(`Photos of ${this.state.user.first_name} ${this.state.user.last_name}`);
+            })
+            .catch(err => {console.log(err);});
+    };
+
+    componentWillUnmount = () => {
+        this.props.changeView("");
+    };
+
+    componentDidUpdate = (prevProps) => {
+        let newUserID = this.props.match.params.userId;
+        if (prevProps.match.params.userId !== newUserID) {
+            let userId = this.props.match.params.userId;
+            axios.get(`http://localhost:3000/photosOfUser/${userId}`)
+                .then(response => {
+                    this.setState({photos: response.data});
+                })
+                .catch(err => {console.error(err);});
+
+            axios.get(`http://localhost:3000/user/${userId}`)
+                .then(response => {
+                    this.setState({user: response.data});
+                    this.props.changeView(`Photos of ${this.state.user.first_name} ${this.state.user.last_name}`);
+                })
+                .catch(err => {console.log(err);});
+        }
+    };
 
     render() {
-        const { user, photos } = this.state;
-
-        return (
-            <div className="user-photos">
-                {user ? (
-                    <div>
-                        <Typography variant="h3">
-                            <div>{user.first_name} {user.last_name}&apos;s photos</div>
-                        </Typography>
-                        <Grid container spacing={3}>
-                            {photos.map(photo => (
-                                <Grid item xs={12} sm={6} md={4} key={photo._id}>
-                                    <Card className="card">
-                                        <CardHeader title={photo.date_time} />
-                                        <CardMedia
-                                            component="img"
-                                            alt={`${user.first_name}'s Photo`}
-                                            height="300"
-                                            width="300"
-                                            image={`/images/${photo.file_name}`}
-                                            title={`${user.first_name}'s Photo`}
-                                        />
-                                        <CardContent>
-                                            <Typography variant="body2" color="textSecondary">
-                                                {photo.comments
-                                                    ? photo.comments.map(comment => (
-                                                        <div key={comment._id}>
-                                                            <Typography variant="caption">{comment.date_time}</Typography>
-                                                            <Link to={`/users/${comment.user._id}`}>
-                                                                {`${comment.user.first_name} ${comment.user.last_name}`}
-                                                            </Link>
-                                                            <Typography variant="body2">{comment.comment}</Typography>
-                                                        </div>
-                                                    ))
-                                                    : null}
-                                            </Typography>
-                                        </CardContent>
-                                    </Card>
-                                </Grid>
-                            ))}
+        return this.state.user ? (
+            <Grid container justify="space-evenly" alignItems="flex-start">
+                {this.state.photos ? this.state.photos.map((photo) => {
+                    return (
+                        <Grid item xs={5} key={photo._id}>
+                            <Card>
+                                <CardActionArea>
+                                    <CardHeader
+                                        title={`${photo.file_name}`}
+                                        subheader={`Creation Time: ${photo.date_time}`}
+                                    />
+                                    <CardMedia
+                                        component="img"
+                                        height="200"
+                                        width="200"
+                                        image={`./images/${photo.file_name}`}
+                                        alt="green iguana"
+                                    />
+                                    <CardContent>
+                                        {photo.comments ? photo.comments.map((comment) => {
+                                            return (
+                                                <Grid container direction="column" key={comment._id}>
+                                                    <Typography variant="body2" color="inherit">
+                                                        {comment.date_time}
+                                                    </Typography>
+                                                    <Typography variant="body2" color="inherit">
+                                                        <Link to={`/users/${comment.user._id}`}>
+                                                            {`${comment.user.first_name} ${comment.user.last_name}`}
+                                                        </Link>
+                                                    </Typography>
+                                                    <Typography variant="body2" color="secondary">
+                                                        {comment.comment}
+                                                    </Typography>
+                                                </Grid>
+                                            );
+                                        }) : <div />}
+                                    </CardContent>
+                                </CardActionArea>
+                            </Card>
                         </Grid>
-                    </div>
-                ) : (
-                    <div>User not found</div>
-                )}
-            </div>
-        );
+                    );}
+                ) : <div/>}
+            </Grid>
+        ) : <div/>;
     }
 }
 

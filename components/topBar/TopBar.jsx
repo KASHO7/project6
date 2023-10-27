@@ -1,45 +1,69 @@
-import React from "react";
-import { Grid, AppBar, Toolbar, Typography } from "@material-ui/core";
-import fetchModel from "../../lib/fetchModelData";
+import React from 'react';
+import {
+    Grid, AppBar, Toolbar, Typography
+} from '@material-ui/core';
+import './TopBar.css';
+// import fetchModel from "../../lib/fetchModelData";
+import axios from 'axios';
 
+/**
+ * Define TopBar
+ */
 class TopBar extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            view: this.props.view || "",
-            version: ""
+            view: this.props.view,
+            version:""
         };
     }
 
-    componentDidUpdate(prevProps) {
+    componentDidMount = () => {
+        axios.get("http://localhost:3000/test/info")
+            .then((response) => {
+                this.setState({ version: response.data.__v});
+                this.props.changeView("Welcome to the photosharing app!");
+            })
+            .catch((error) => {console.log(error);});
+    };
+
+    componentDidUpdate = (prevProps) => {
         if (prevProps.view !== this.props.view) {
-            this.setState({ view: this.props.view || "" });
-            let prom = fetchModel("http://localhost:3000/test/info");
-            prom.then(response => {
-                this.setState({ version: response.data.__v });
-            });
+            this.setState({ view: this.props.view });
+            this.props.changeView(this.props.view);
+            //   axios.get("http://localhost:3000/test/info")
+            //   .then((response) => {
+            //     this.setState({ version: response.data.__v,view: this.props.view });
+            //   })
+            //   .catch((error) => {console.log(error);});
         }
-    }
+    };
 
     render() {
-        const { view } = this.state;
-
         return (
-            <AppBar className="topbar-appBar" position="absolute">
+            <AppBar className="cs142-topbar-appBar" position="absolute">
                 <Toolbar>
                     <Grid
                         container
                         direction="row"
-                        justifyContent="space-between" // Updated prop here
+                        justify="space-between"
                         alignItems="center"
                     >
-                        <Typography variant="h5" color="inherit">
-                            Group 9
-                        </Typography>
-                        <Typography variant="body1">
-                            version: {this.state.version}
-                        </Typography>
-                        <Typography variant="h5">{view}</Typography>
+                        <Grid item xs>
+                            <Typography variant="h5" color="inherit">
+                                Yi Hu
+                            </Typography>
+                        </Grid>
+                        <Grid item xs>
+                            <Typography variant="h5" color="inherit">
+                                Version: {this.state.version}
+                            </Typography>
+                        </Grid>
+                        <Grid item xs>
+                            <Typography variant="h5" align="right">
+                                {this.state.view}
+                            </Typography>
+                        </Grid>
                     </Grid>
                 </Toolbar>
             </AppBar>

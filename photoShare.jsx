@@ -13,6 +13,7 @@ import TopBar from './components/topBar/TopBar';
 import UserDetail from './components/userDetail/userDetail';
 import UserList from './components/userList/userList';
 import UserPhotos from './components/userPhotos/userPhotos';
+//import axios from 'axios';
 
 class PhotoShare extends React.Component {
   constructor(props) {
@@ -27,22 +28,23 @@ class PhotoShare extends React.Component {
     this.setState({ view: newView});
   };
 
+
   render() {
     return (
         <HashRouter>
           <div>
             <Grid container spacing={8}>
               <Grid item xs={12}>
-                <TopBar view={this.state.view}/>
+                <TopBar changeView={this.changeView} view={this.state.view}/>
               </Grid>
-              <div className="cs142-main-topbar-buffer"/>
+              <div className="main-topbar-buffer"/>
               <Grid item sm={3}>
-                <Paper className="cs142-main-grid-item">
-                  <UserList />
+                <Paper className="main-grid-item">
+                  <UserList changeView={this.changeView}/>
                 </Paper>
               </Grid>
               <Grid item sm={9}>
-                <Paper className="cs142-main-grid-item">
+                <Paper className="main-grid-item">
                   <Switch>
                     <Route path="/users/:userId"
                            render={ props => <UserDetail {...props} changeView={this.changeView} /> }

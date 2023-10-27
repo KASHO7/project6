@@ -1,87 +1,81 @@
 import React from 'react';
 import {
-    Box,
-    Button,
-    TextField
-} from '@mui/material';
+    Grid, Typography
+} from '@material-ui/core';
+import { Link } from "react-router-dom";
 import './userDetail.css';
-import fetchModel from "../../lib/fetchModelData";
+//import fetchModel from "../../lib/fetchModelData";
+import axios from 'axios';
 
 /**
- * Define UserDetail, a React component of project #5
+ * Define UserDetail,
  */
 class UserDetail extends React.Component {
     constructor(props) {
         super(props);
-        this.state = {
-            user: undefined
+        this.state={
+            user:undefined
         };
     }
-    componentDidMount() {
-        const new_user_id = this.props.match.params.userId;
-        this.handleUserChange(new_user_id);
-    }
 
-    componentDidUpdate() {
-        const new_user_id = this.props.match.params.userId;
-        const current_user_id = this.state.user?._id;
-        if (current_user_id  !== new_user_id){
-            this.handleUserChange(new_user_id);
+    componentDidMount = () => {
+        let newUserId = this.props.match.params.userId;
+        console.log(newUserId);
+        axios.get(`http://localhost:3000/user/${newUserId}`)
+            .then(response => {
+                let newUser = response.data;
+                this.setState({user:newUser});
+                this.props.changeView(
+                    `${newUser.first_name} ${newUser.last_name}`
+                );
+            })
+            .catch(error => {console.log(error);});
+    };
+
+    componentDidUpdate = () => {
+        let newUserId = this.props.match.params.userId;
+        if ((this.state.user && this.state.user._id) !== newUserId) {
+            axios.get(`http://localhost:3000/user/${newUserId}`)
+                .then(response => {
+                    let newUser = response.data;
+                    this.setState({user:newUser});
+                    this.props.changeView(
+                        `${newUser.first_name} ${newUser.last_name}`
+                    );
+                })
+                .catch(error => {console.log(error);});
         }
-    }
+    };
 
-    handleUserChange(user_id){
-        fetchModel("/user/" + user_id)
-            .then((response) =>
-            {
-                const new_user = response.data;
-                this.setState({
-                    user: new_user
-                });
-                const main_content = "User Details for " + new_user.first_name + " " + new_user.last_name;
-                this.props.changeMainContent(main_content);
-            });
-    }
+    componentWillUnmount = () => {
+        this.props.changeView("");
+    };
 
     render() {
         return this.state.user ? (
-            <div>
-                <Box component="form" noValidate autoComplete="off">
-                    <div>
-                        <Button variant="contained" component="a" href={"#/photos/" + this.state.user._id}>
-                            User Photos
-                        </Button>
-                    </div>
-                    <div>
-                        <TextField id="first_name" label="First Name" variant="outlined" disabled fullWidth
-                                   margin="normal"
-                                   value={this.state.user.first_name}/>
-                    </div>
-                    <div>
-                        <TextField id="last_name" label="Last Name" variant="outlined" disabled fullWidth
-                                   margin="normal"
-                                   value={this.state.user.last_name}/>
-                    </div>
-                    <div>
-                        <TextField id="location" label="Location" variant="outlined" disabled fullWidth
-                                   margin="normal"
-                                   value={this.state.user.location}/>
-                    </div>
-                    <div>
-                        <TextField id="description" label="Description" variant="outlined" multiline rows={4}
-                                   disabled
-                                   fullWidth margin="normal" value={this.state.user.description}/>
-                    </div>
-                    <div>
-                        <TextField id="occupation" label="Occupation" variant="outlined" disabled fullWidth
-                                   margin="normal"
-                                   value={this.state.user.occupation}/>
-                    </div>
-                </Box>
-            </div>
-        ) : (
-            <div/>
-        );
+            <Grid
+                container
+                direction="column"
+                justify="space-between"
+                alignItems="flex-start"
+            >
+                <Typography variant="h3" color="inherit">
+                    {`${this.state.user.first_name} ${this.state.user.last_name}`}
+                </Typography>
+                <Typography variant="h5">
+                    Occupation: {`${this.state.user.occupation}`}
+                </Typography>
+                <Typography variant="h5">
+                    Location: {`${this.state.user.location}`}
+                </Typography>
+                <Typography variant="body1">
+                    Description: {`${this.state.user.description}`}
+                </Typography>
+                <Typography variant="h3">
+                    <Link to={`/photos/${this.state.user._id}`}>Photos</Link>
+                </Typography>
+            </Grid>
+        ) : <div/>;
     }
 }
 
